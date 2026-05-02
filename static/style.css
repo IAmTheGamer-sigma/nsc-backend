@@ -22,8 +22,16 @@ input, button {
 }
 
 .sidebar {
-  width: 80px;
+  width: 70px;
   background: #1e1f22;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.sidebar div {
+  padding: 20px;
+  cursor: pointer;
 }
 
 .main {
@@ -35,10 +43,12 @@ input, button {
 #messages {
   flex: 1;
   overflow-y: auto;
+  padding: 10px;
 }
 
 video {
   width: 45%;
+  margin: 5px;
 }
 
 .hidden {
