@@ -1,32 +1,36 @@
+# ✅ VERY IMPORTANT (FIXES YOUR ERROR)
 import eventlet
 eventlet.monkey_patch()
-from flask import Flask, request, jsonify
+
+from flask import Flask, request, jsonify, send_from_directory
 from flask_socketio import SocketIO, emit
 
-app = Flask(__name__)
+# -------------------------
+# APP SETUP
+# -------------------------
+app = Flask(__name__, static_folder="static")
 app.config['SECRET_KEY'] = 'secret'
 
-# Allow connections from your Electron app
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 # -------------------------
-# USER SYSTEM (simple)
+# USER SYSTEM
 # -------------------------
-# MemberID : {pin, role}
 users = {
-    "011": {"pin": "1234", "role": "president"},
-    "022": {"pin": "5678", "role": "member"}
+    "01": {"pin": "0116", "role": "member"},
+    "02": {"pin": "1245", "role": "member"},
+    "03": {"pin": "1234", "role": "president"}
 }
 
 # -------------------------
-# BASIC ROUTE (fixes "Not Found")
+# SERVE WEBSITE
 # -------------------------
 @app.route("/")
-def home():
-    return "NSC Backend is running!"
+def serve():
+    return send_from_directory(app.static_folder, "index.html")
 
 # -------------------------
-# LOGIN ROUTE
+# LOGIN
 # -------------------------
 @app.route("/login", methods=["POST"])
 def login():
@@ -39,52 +43,35 @@ def login():
             "status": "ok",
             "role": users[uid]["role"]
         })
-    else:
-        return jsonify({
-            "status": "fail"
-        })
+    return jsonify({"status": "fail"})
 
 # -------------------------
-# SOCKET.IO EVENTS
+# SOCKET EVENTS
 # -------------------------
 
-# When user connects
 @socketio.on("connect")
-def handle_connect():
-    print("User connected:", request.sid)
+def on_connect():
+    print("User connected")
 
-# When user joins
 @socketio.on("join")
-def handle_join(data):
-    user_id = data.get("id")
-    print(f"{user_id} joined")
+def on_join(data):
+    print(f"{data['id']} joined")
 
-# CHAT SYSTEM
 @socketio.on("message")
-def handle_message(msg):
-    print("Message:", msg)
+def on_message(msg):
     emit("message", msg, broadcast=True)
 
-# CALL SIGNALING (WebRTC)
+# 🔥 WebRTC signaling
 @socketio.on("signal")
-def handle_signal(data):
+def on_signal(data):
     emit("signal", data, broadcast=True, include_self=False)
 
-# When user disconnects
 @socketio.on("disconnect")
-def handle_disconnect():
-    print("User disconnected:", request.sid)
+def on_disconnect():
+    print("User disconnected")
 
 # -------------------------
-# RUN SERVER (Render compatible)
+# RUN SERVER
 # -------------------------
 if __name__ == "__main__":
-    print("Starting backend...")
     socketio.run(app, host="0.0.0.0", port=10000)
-    from flask import Flask, request, jsonify, send_from_directory
-
-app = Flask(__name__, static_folder="static")
-
-@app.route("/")
-def serve_site():
-    return send_from_directory(app.static_folder, "index.html")
