@@ -1,1 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>NSC Social</title>
+  <link rel="stylesheet" href="style.css">
+</head>
 
+<body>
+
+<div class="login" id="login">
+  <h2>Club Login</h2>
+  <input id="id" placeholder="Member ID">
+  <input id="pin" placeholder="PIN" type="password">
+  <button onclick="login()">Login</button>
+</div>
+
+<div class="app hidden" id="app">
+
+  <div class="sidebar">
+    <div onclick="show('chat')">💬 Chat</div>
+    <div onclick="show('call')">📞 Call</div>
+  </div>
+
+  <div class="main">
+
+    <div id="chat" class="view">
+      <div id="messages"></div>
+      <input id="msg">
+      <button onclick="send()">Send</button>
+    </div>
+
+    <div id="call" class="view hidden">
+      <video id="local" autoplay muted></video>
+      <video id="remote" autoplay></video>
+      <button onclick="startCall()">Start Call</button>
+    </div>
+
+  </div>
+
+</div>
+
+<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
