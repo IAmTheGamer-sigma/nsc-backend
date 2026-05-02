@@ -2,6 +2,7 @@ const SERVER = window.location.origin;
 const socket = io(SERVER);
 
 let currentUser = null;
+let pc;
 
 // LOGIN
 async function login() {
@@ -45,17 +46,27 @@ socket.on("message", (msg) => {
   box.innerHTML += `<div><b>${msg.user}:</b> ${msg.text}</div>`;
 });
 
-// CALLS
-let pc;
-
+// CALLS (WITH TURN)
 async function startCall() {
   pc = new RTCPeerConnection({
     iceServers: [
-      { urls: "stun:stun.l.google.com:19302" }
+      { urls: "stun:stun.l.google.com:19302" },
+      {
+        urls: [
+          "turn:YOUR-IP:3478?transport=udp",
+          "turn:YOUR-IP:3478?transport=tcp"
+        ],
+        username: "testuser",
+        credential: "testpass"
+      }
     ]
   });
 
-  const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+  const stream = await navigator.mediaDevices.getUserMedia({
+    video: true,
+    audio: true
+  });
+
   document.getElementById("local").srcObject = stream;
 
   stream.getTracks().forEach(track => pc.addTrack(track, stream));
@@ -72,6 +83,8 @@ async function startCall() {
 }
 
 socket.on("signal", async (data) => {
+  if (!pc) return;
+
   if (data.candidate) {
     await pc.addIceCandidate(new RTCIceCandidate(data.candidate));
   }
