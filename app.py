@@ -79,3 +79,10 @@ def handle_disconnect():
 if __name__ == "__main__":
     print("Starting backend...")
     socketio.run(app, host="0.0.0.0", port=10000)
+    from flask import Flask, request, jsonify, send_from_directory
+
+app = Flask(__name__, static_folder="static")
+
+@app.route("/")
+def serve_site():
+    return send_from_directory(app.static_folder, "index.html")
